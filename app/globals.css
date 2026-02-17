@@ -186,14 +186,15 @@ iframe:focus-visible {
 }
 
 .hero-banner {
-  min-height: clamp(170px, 30vw, 300px);
+  min-height: clamp(170px, 50vw, 250px);
   border-radius: calc(var(--radius) + 4px);
   border: 1px solid rgba(190, 30, 45, 0.2);
   overflow: hidden;
   box-shadow: var(--shadow);
   background: url("/banner.jpg");
-  background-size: cover;
-  background-position: center;
+  background-size: 100% auto;
+  background-position: center 65%;
+  background-repeat: no-repeat;
   position: relative;
 }
 
@@ -387,12 +388,38 @@ iframe:focus-visible {
 
 @media (max-width: 920px) {
   .header-inner {
-    align-items: flex-start;
+    min-height: auto;
+    padding: 0.65rem 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
   }
 
   .header-actions {
+    width: 100%;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .logo-link {
+    justify-content: center;
+  }
+
+  .nav-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .nav-list a {
+    display: block;
+    text-align: center;
+  }
+
+  .social-list {
+    justify-content: center;
   }
 
   .home-layout {
@@ -405,5 +432,11 @@ iframe:focus-visible {
 
   .embed-wrap-league iframe {
     min-height: 760px;
+  }
+}
+
+@media (max-width: 460px) {
+  .nav-list {
+    grid-template-columns: 1fr;
   }
 }

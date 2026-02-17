@@ -5,10 +5,6 @@ export function NewsSection() {
   return (
     <section className="panel panel-news" aria-labelledby="news-title">
       <h2 id="news-title">Aktualnosci</h2>
-      <p className="muted">
-        Pokazujemy staly podglad ostatnich postow z fanpage. Po wiecej przejdz na
-        Facebook.
-      </p>
 
       <div className="embed-wrap embed-wrap-news">
         <iframe
