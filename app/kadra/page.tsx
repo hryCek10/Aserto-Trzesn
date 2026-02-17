@@ -45,7 +45,7 @@ export default function SquadPage() {
 
   return (
     <section className="panel">
-      <h1>Kadra</h1>
+      <h1>Kadra Aserto Trześń 2025/2026</h1>
 
       <div className="squad-groups">
         {groupedPlayers.map((group) => (
