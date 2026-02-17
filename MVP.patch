@@ -1,0 +1,1262 @@
+diff --git a/aserto-trzesn-site/.gitignore b/aserto-trzesn-site/.gitignore
+new file mode 100644
+index 0000000..935908f
+--- /dev/null
++++ b/aserto-trzesn-site/.gitignore
+@@ -0,0 +1,11 @@
++.next
++node_modules
++out
++npm-debug.log*
++yarn-debug.log*
++yarn-error.log*
++pnpm-debug.log*
++.env
++.env.local
++.idea
++*.iml
+diff --git a/aserto-trzesn-site/package.json b/aserto-trzesn-site/package.json
+new file mode 100644
+index 0000000..ca02186
+--- /dev/null
++++ b/aserto-trzesn-site/package.json
+@@ -0,0 +1,22 @@
++{
++  "name": "aserto-trzesn-site",
++  "version": "0.1.0",
++  "private": true,
++  "scripts": {
++    "dev": "next dev",
++    "build": "next build",
++    "start": "next start",
++    "lint": "next lint"
++  },
++  "dependencies": {
++    "next": "^15.1.0",
++    "react": "^19.0.0",
++    "react-dom": "^19.0.0"
++  },
++  "devDependencies": {
++    "@types/node": "^22.10.0",
++    "@types/react": "^19.0.0",
++    "@types/react-dom": "^19.0.0",
++    "typescript": "^5.7.0"
++  }
++}
+diff --git a/aserto-trzesn-site/tsconfig.json b/aserto-trzesn-site/tsconfig.json
+new file mode 100644
+index 0000000..8e0997c
+--- /dev/null
++++ b/aserto-trzesn-site/tsconfig.json
+@@ -0,0 +1,41 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "lib": [
++      "DOM",
++      "DOM.Iterable",
++      "ES2022"
++    ],
++    "allowJs": false,
++    "skipLibCheck": true,
++    "strict": true,
++    "noEmit": true,
++    "module": "ESNext",
++    "moduleResolution": "Bundler",
++    "resolveJsonModule": true,
++    "isolatedModules": true,
++    "jsx": "preserve",
++    "incremental": true,
++    "baseUrl": ".",
++    "paths": {
++      "@/*": [
++        "./*"
++      ]
++    },
++    "plugins": [
++      {
++        "name": "next"
++      }
++    ],
++    "esModuleInterop": true
++  },
++  "include": [
++    "next-env.d.ts",
++    "**/*.ts",
++    "**/*.tsx",
++    ".next/types/**/*.ts"
++  ],
++  "exclude": [
++    "node_modules"
++  ]
++}
+diff --git a/aserto-trzesn-site/next-env.d.ts b/aserto-trzesn-site/next-env.d.ts
+new file mode 100644
+index 0000000..830fb59
+--- /dev/null
++++ b/aserto-trzesn-site/next-env.d.ts
+@@ -0,0 +1,6 @@
++/// <reference types="next" />
++/// <reference types="next/image-types/global" />
++/// <reference path="./.next/types/routes.d.ts" />
++
++// NOTE: This file should not be edited
++// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+diff --git a/aserto-trzesn-site/next.config.ts b/aserto-trzesn-site/next.config.ts
+new file mode 100644
+index 0000000..bf53630
+--- /dev/null
++++ b/aserto-trzesn-site/next.config.ts
+@@ -0,0 +1,7 @@
++import type { NextConfig } from "next";
++
++const nextConfig: NextConfig = {
++  reactStrictMode: true
++};
++
++export default nextConfig;
+diff --git a/aserto-trzesn-site/README.md b/aserto-trzesn-site/README.md
+new file mode 100644
+index 0000000..f6f92a0
+--- /dev/null
++++ b/aserto-trzesn-site/README.md
+@@ -0,0 +1,48 @@
++# Aserto Trzesn - MVP
++
++Maly serwis informacyjny oparty o Next.js (React), bez backendu i bez bazy danych.
++
++## Dlaczego Next.js + Vercel
++
++- Prosty darmowy hosting z auto-deploy z GitHub.
++- File-based routing i gotowe `sitemap`/`robots`/`404`.
++- SEO i OpenGraph wbudowane przez `metadata`.
++- Brak potrzeby utrzymywania API: dane sa z embedow/linkow lub z plikow statycznych.
++
++## Struktura
++
++- `app/` - routing i strony
++- `components/` - sekcje UI
++- `data/` - JSON (kadra, fallback aktualnosci, fallback liga)
++- `content/` - Markdown (historia)
++- `lib/` - helpery odczytu i renderowania Markdown
++
++## Tryby komponentow
++
++- `NEXT_PUBLIC_NEWS_MODE=facebook|fallback`
++- `NEXT_PUBLIC_LEAGUE_MODE=iframe|link|manual`
++- `NEXT_PUBLIC_SITE_URL=https://twoj-adres`
++
++## Lokalnie
++
++```bash
++npm install
++npm run dev
++```
++
++## Deploy na Vercel (free) z GitHub
++
++1. Wrzuc repozytorium na GitHub.
++2. Zaloguj sie do https://vercel.com i wybierz `Add New -> Project`.
++3. Wskaz repo `aserto-trzesn-site`.
++4. Framework powinien wykryc sie automatycznie jako Next.js.
++5. Dodaj zmienne:
++   - `NEXT_PUBLIC_SITE_URL`
++   - opcjonalnie `NEXT_PUBLIC_NEWS_MODE`
++   - opcjonalnie `NEXT_PUBLIC_LEAGUE_MODE`
++6. Kliknij `Deploy`.
++7. Po deployu podlacz domene lub subdomena vercel.app.
++
++## Notatka o danych ligowych
++
++Aktualnie rekomendowany domyslny tryb to `link` (oficjalny widok LNP), bo brak publicznie udokumentowanego API do bezpiecznego wykorzystania bez indywidualnych ustalen.
+diff --git a/aserto-trzesn-site/app/layout.tsx b/aserto-trzesn-site/app/layout.tsx
+new file mode 100644
+index 0000000..05eca5b
+--- /dev/null
++++ b/aserto-trzesn-site/app/layout.tsx
+@@ -0,0 +1,66 @@
++import type { Metadata } from "next";
++import type { ReactNode } from "react";
++import { SiteHeader } from "@/components/site-header";
++import "./globals.css";
++
++const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aserto-trzesn.vercel.app";
++
++export const metadata: Metadata = {
++  metadataBase: new URL(siteUrl),
++  title: {
++    default: "Aserto Trzesn - strona informacyjna",
++    template: "%s | Aserto Trzesn"
++  },
++  description:
++    "Aktualnosci, kadra, historia i informacje ligowe lokalnej druzyny pilkarskiej Aserto Trzesn.",
++  openGraph: {
++    type: "website",
++    locale: "pl_PL",
++    title: "Aserto Trzesn",
++    description:
++      "Aktualnosci, kadra, historia i informacje ligowe lokalnej druzyny pilkarskiej.",
++    url: siteUrl,
++    siteName: "Aserto Trzesn"
++  },
++  twitter: {
++    card: "summary_large_image",
++    title: "Aserto Trzesn",
++    description:
++      "Mala strona informacyjna lokalnej druzyny: aktualnosci, kadra, historia i liga."
++  }
++};
++
++export default function RootLayout({
++  children
++}: Readonly<{
++  children: ReactNode;
++}>) {
++  return (
++    <html lang="pl">
++      <body>
++        <a className="skip-link" href="#main-content">
++          Przejdz do tresci
++        </a>
++        <SiteHeader />
++        <main id="main-content" className="container main-content">
++          {children}
++        </main>
++        <footer className="site-footer">
++          <div className="container footer-inner">
++            <p>© {new Date().getFullYear()} Aserto Trzesn</p>
++            <p>
++              Oficjalne zrodla:{" "}
++              <a href="https://www.facebook.com/AsertoTrzesn" target="_blank" rel="noreferrer">
++                Facebook
++              </a>{" "}
++              oraz{" "}
++              <a href="https://www.laczynaspilka.pl" target="_blank" rel="noreferrer">
++                Laczy Nas Pilka
++              </a>
++            </p>
++          </div>
++        </footer>
++      </body>
++    </html>
++  );
++}
+diff --git a/aserto-trzesn-site/app/globals.css b/aserto-trzesn-site/app/globals.css
+new file mode 100644
+index 0000000..096ce70
+--- /dev/null
++++ b/aserto-trzesn-site/app/globals.css
+@@ -0,0 +1,282 @@
++:root {
++  --bg: #f6f8fc;
++  --surface: #ffffff;
++  --surface-soft: #f0f4ff;
++  --text: #131f36;
++  --muted: #4a5c84;
++  --line: #d8e0f0;
++  --brand: #11408f;
++  --brand-dark: #0c2c63;
++  --focus: #e9b949;
++  --radius: 14px;
++  --shadow: 0 10px 30px rgba(11, 32, 70, 0.08);
++}
++
++*,
++*::before,
++*::after {
++  box-sizing: border-box;
++}
++
++html,
++body {
++  margin: 0;
++  padding: 0;
++  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
++  background: radial-gradient(circle at top left, #e8eefc, var(--bg) 35%);
++  color: var(--text);
++}
++
++a {
++  color: var(--brand);
++}
++
++a:focus-visible,
++button:focus-visible,
++iframe:focus-visible {
++  outline: 3px solid var(--focus);
++  outline-offset: 2px;
++}
++
++.container {
++  width: min(1080px, calc(100% - 2rem));
++  margin: 0 auto;
++}
++
++.skip-link {
++  position: absolute;
++  left: -9999px;
++  top: 0;
++  background: var(--brand-dark);
++  color: #fff;
++  padding: 0.75rem 1rem;
++  z-index: 10;
++}
++
++.skip-link:focus {
++  left: 1rem;
++}
++
++.site-header {
++  border-bottom: 1px solid var(--line);
++  background: rgba(255, 255, 255, 0.9);
++  backdrop-filter: blur(6px);
++  position: sticky;
++  top: 0;
++  z-index: 5;
++}
++
++.header-inner {
++  min-height: 72px;
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  gap: 1rem;
++}
++
++.logo-link {
++  display: inline-flex;
++  align-items: center;
++  gap: 0.6rem;
++  font-weight: 700;
++  text-decoration: none;
++}
++
++.logo-badge {
++  width: 2rem;
++  height: 2rem;
++  border-radius: 50%;
++  display: grid;
++  place-items: center;
++  font-size: 0.78rem;
++  color: #fff;
++  background: linear-gradient(135deg, var(--brand), #2f67c5);
++}
++
++.nav-list {
++  list-style: none;
++  display: flex;
++  gap: 0.4rem;
++  flex-wrap: wrap;
++  margin: 0;
++  padding: 0;
++}
++
++.nav-list a {
++  text-decoration: none;
++  padding: 0.45rem 0.75rem;
++  border-radius: 999px;
++}
++
++.nav-list a:hover {
++  background: var(--surface-soft);
++}
++
++.main-content {
++  padding: 2.2rem 0 2.8rem;
++}
++
++.hero {
++  margin-bottom: 1.2rem;
++}
++
++.hero h1 {
++  margin: 0;
++  font-size: clamp(1.8rem, 4vw, 2.8rem);
++}
++
++.hero p {
++  max-width: 68ch;
++}
++
++.panel {
++  background: var(--surface);
++  border-radius: var(--radius);
++  border: 1px solid var(--line);
++  box-shadow: var(--shadow);
++  padding: 1.15rem;
++  margin-top: 1rem;
++}
++
++.panel.soft {
++  background: var(--surface-soft);
++  box-shadow: none;
++}
++
++.muted {
++  color: var(--muted);
++}
++
++.small {
++  font-size: 0.92rem;
++}
++
++.quick-grid {
++  display: grid;
++  grid-template-columns: repeat(3, minmax(0, 1fr));
++  gap: 0.9rem;
++}
++
++.quick-card {
++  background: var(--surface-soft);
++  border: 1px solid var(--line);
++  border-radius: 12px;
++  padding: 0.9rem;
++}
++
++.embed-wrap iframe {
++  width: 100%;
++  max-width: 500px;
++  background: #fff;
++}
++
++.news-fallback {
++  margin-top: 1.1rem;
++}
++
++.news-list {
++  margin: 0;
++  padding: 0;
++  list-style: none;
++  display: grid;
++  gap: 0.8rem;
++}
++
++.news-item {
++  border: 1px solid var(--line);
++  border-radius: 10px;
++  padding: 0.85rem;
++  background: #fff;
++}
++
++.news-item h4 {
++  margin-top: 0;
++  margin-bottom: 0.2rem;
++}
++
++.news-date {
++  margin: 0 0 0.25rem 0;
++  font-size: 0.88rem;
++  color: var(--muted);
++}
++
++.cta-box {
++  border: 1px dashed var(--line);
++  border-radius: 12px;
++  padding: 1rem;
++}
++
++.button-link {
++  display: inline-block;
++  margin-top: 0.4rem;
++  text-decoration: none;
++  background: var(--brand);
++  color: #fff;
++  border-radius: 999px;
++  padding: 0.55rem 1rem;
++}
++
++.button-link:hover {
++  background: var(--brand-dark);
++}
++
++.manual-grid {
++  display: grid;
++  grid-template-columns: 1fr 1fr;
++  gap: 0.8rem;
++}
++
++.data-table {
++  width: 100%;
++  border-collapse: collapse;
++}
++
++.data-table caption {
++  text-align: left;
++  margin-bottom: 0.4rem;
++  color: var(--muted);
++}
++
++.data-table th,
++.data-table td {
++  border: 1px solid var(--line);
++  padding: 0.55rem;
++  text-align: left;
++}
++
++.markdown-h1,
++.markdown-h2,
++.markdown-p,
++.markdown-list {
++  margin-top: 0;
++}
++
++.markdown-h2 {
++  margin-top: 1.3rem;
++}
++
++.markdown-list {
++  padding-left: 1.2rem;
++}
++
++.site-footer {
++  border-top: 1px solid var(--line);
++  background: #fff;
++}
++
++.footer-inner {
++  display: flex;
++  justify-content: space-between;
++  gap: 0.8rem;
++  flex-wrap: wrap;
++  min-height: 64px;
++  align-items: center;
++  font-size: 0.92rem;
++}
++
++@media (max-width: 920px) {
++  .quick-grid,
++  .manual-grid {
++    grid-template-columns: 1fr;
++  }
++}
+diff --git a/aserto-trzesn-site/app/page.tsx b/aserto-trzesn-site/app/page.tsx
+new file mode 100644
+index 0000000..5ac0fc7
+--- /dev/null
++++ b/aserto-trzesn-site/app/page.tsx
+@@ -0,0 +1,38 @@
++import Link from "next/link";
++import { LeagueSection } from "@/components/league-section";
++import { NewsSection } from "@/components/news-section";
++
++export default function HomePage() {
++  return (
++    <>
++      <section className="hero">
++        <h1>Aserto Trzesn</h1>
++        <p>
++          Mala strona informacyjna lokalnej druzyny pilkarskiej. Dane pochodza z
++          oficjalnych zrodel lub plikow statycznych w repo.
++        </p>
++      </section>
++
++      <section className="quick-grid" aria-label="Szybkie sekcje">
++        <article className="quick-card">
++          <h2>Kadra</h2>
++          <p>Lista zawodnikow bez zdjec.</p>
++          <Link href="/kadra">Przejdz do kadry</Link>
++        </article>
++        <article className="quick-card">
++          <h2>Historia</h2>
++          <p>Statyczna tresc ladowana z pliku Markdown.</p>
++          <Link href="/historia">Czytaj historie</Link>
++        </article>
++        <article className="quick-card">
++          <h2>Liga</h2>
++          <p>Terminarz, tabela i wyniki z opcjami iframe/link/manual.</p>
++          <Link href="/liga">Otworz lige</Link>
++        </article>
++      </section>
++
++      <NewsSection />
++      <LeagueSection />
++    </>
++  );
++}
+diff --git a/aserto-trzesn-site/app/not-found.tsx b/aserto-trzesn-site/app/not-found.tsx
+new file mode 100644
+index 0000000..9c40e6b
+--- /dev/null
++++ b/aserto-trzesn-site/app/not-found.tsx
+@@ -0,0 +1,11 @@
++import Link from "next/link";
++
++export default function NotFoundPage() {
++  return (
++    <section className="panel">
++      <h1>404 - Nie znaleziono strony</h1>
++      <p>Sprawdz adres albo wroc na strone glowna.</p>
++      <Link href="/">Wroc do strony glownej</Link>
++    </section>
++  );
++}
+diff --git a/aserto-trzesn-site/app/sitemap.ts b/aserto-trzesn-site/app/sitemap.ts
+new file mode 100644
+index 0000000..3ece05e
+--- /dev/null
++++ b/aserto-trzesn-site/app/sitemap.ts
+@@ -0,0 +1,15 @@
++import type { MetadataRoute } from "next";
++
++const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aserto-trzesn.vercel.app";
++
++export default function sitemap(): MetadataRoute.Sitemap {
++  const routes = ["/", "/kadra", "/historia", "/liga", "/research"];
++  const now = new Date();
++
++  return routes.map((route) => ({
++    url: `${siteUrl}${route}`,
++    lastModified: now,
++    changeFrequency: route === "/" ? "weekly" : "monthly",
++    priority: route === "/" ? 1 : 0.7
++  }));
++}
+diff --git a/aserto-trzesn-site/app/robots.ts b/aserto-trzesn-site/app/robots.ts
+new file mode 100644
+index 0000000..9fc94d7
+--- /dev/null
++++ b/aserto-trzesn-site/app/robots.ts
+@@ -0,0 +1,13 @@
++import type { MetadataRoute } from "next";
++
++const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aserto-trzesn.vercel.app";
++
++export default function robots(): MetadataRoute.Robots {
++  return {
++    rules: {
++      userAgent: "*",
++      allow: "/"
++    },
++    sitemap: `${siteUrl}/sitemap.xml`
++  };
++}
+diff --git a/aserto-trzesn-site/app/kadra/page.tsx b/aserto-trzesn-site/app/kadra/page.tsx
+new file mode 100644
+index 0000000..a5c48f1
+--- /dev/null
++++ b/aserto-trzesn-site/app/kadra/page.tsx
+@@ -0,0 +1,38 @@
++import type { Metadata } from "next";
++import squad from "@/data/squad.json";
++
++export const metadata: Metadata = {
++  title: "Kadra",
++  description: "Kadra Aserto Trzesn - imie i nazwisko, pozycja, numer i rocznik."
++};
++
++export default function SquadPage() {
++  return (
++    <section className="panel">
++      <h1>Kadra</h1>
++      <p className="muted">Lista oparta o plik `data/squad.json`.</p>
++
++      <table className="data-table">
++        <caption>Aktualna kadra druzyny Aserto Trzesn</caption>
++        <thead>
++          <tr>
++            <th scope="col">Zawodnik</th>
++            <th scope="col">Pozycja</th>
++            <th scope="col">Nr</th>
++            <th scope="col">Rocznik</th>
++          </tr>
++        </thead>
++        <tbody>
++          {squad.map((player) => (
++            <tr key={`${player.name}-${player.number}`}>
++              <td>{player.name}</td>
++              <td>{player.position}</td>
++              <td>{player.number ?? "-"}</td>
++              <td>{player.birthYear ?? "-"}</td>
++            </tr>
++          ))}
++        </tbody>
++      </table>
++    </section>
++  );
++}
+diff --git a/aserto-trzesn-site/app/historia/page.tsx b/aserto-trzesn-site/app/historia/page.tsx
+new file mode 100644
+index 0000000..360fb21
+--- /dev/null
++++ b/aserto-trzesn-site/app/historia/page.tsx
+@@ -0,0 +1,21 @@
++import type { Metadata } from "next";
++import { readHistoryMarkdown } from "@/lib/content";
++import { renderSimpleMarkdown } from "@/lib/markdown";
++
++export const metadata: Metadata = {
++  title: "Historia",
++  description: "Historia Aserto Trzesn ladowana ze statycznego pliku Markdown."
++};
++
++export default async function HistoryPage() {
++  const markdown = await readHistoryMarkdown();
++  const content = renderSimpleMarkdown(markdown);
++
++  return (
++    <article className="panel" aria-labelledby="history-title">
++      <h1 id="history-title">Historia</h1>
++      <p className="muted">Tresc ladowana z `content/history.md`.</p>
++      {content}
++    </article>
++  );
++}
+diff --git a/aserto-trzesn-site/app/liga/page.tsx b/aserto-trzesn-site/app/liga/page.tsx
+new file mode 100644
+index 0000000..c164480
+--- /dev/null
++++ b/aserto-trzesn-site/app/liga/page.tsx
+@@ -0,0 +1,35 @@
++import type { Metadata } from "next";
++import Link from "next/link";
++import { LeagueSection } from "@/components/league-section";
++
++export const metadata: Metadata = {
++  title: "Liga",
++  description:
++    "Terminarz, tabela i wyniki Aserto Trzesn: wariant iframe, link do LNP lub manualny fallback."
++};
++
++export default function LeaguePage() {
++  return (
++    <>
++      <section className="panel">
++        <h1>Liga</h1>
++        <p>
++          Komponent jest przygotowany na trzy tryby bez backendu: osadzenie iframe,
++          linkowanie do LNP albo reczny JSON.
++        </p>
++        <p className="muted">
++          Ustawienie: `NEXT_PUBLIC_LEAGUE_MODE=iframe|link|manual`.
++        </p>
++      </section>
++      <LeagueSection />
++      <section className="panel">
++        <h2>Research LNP/PZPN</h2>
++        <p>
++          Szczegoly o dostepnosci API, ryzykach i rekomendacji implementacyjnej sa na
++          stronie research.
++        </p>
++        <Link href="/research">Przejdz do sekcji research</Link>
++      </section>
++    </>
++  );
++}
+diff --git a/aserto-trzesn-site/app/research/page.tsx b/aserto-trzesn-site/app/research/page.tsx
+new file mode 100644
+index 0000000..01ff9f6
+--- /dev/null
++++ b/aserto-trzesn-site/app/research/page.tsx
+@@ -0,0 +1,76 @@
++import type { Metadata } from "next";
++
++export const metadata: Metadata = {
++  title: "Research danych",
++  description:
++    "Weryfikacja zrodel danych i rekomendacja dla terminarza, tabeli i wynikow."
++};
++
++export default function ResearchPage() {
++  return (
++    <section className="panel">
++      <h1>Research LNP/PZPN data sources</h1>
++
++      <h2>Wniosek jednoznaczny (stan na 17.02.2026)</h2>
++      <p>
++        Brak publicznie udokumentowanego, otwartego API PZPN/LaczyNasPilka dla
++        terminarza/tabeli/wynikow, ktore mozna bezpiecznie i legalnie podpiac bez
++        indywidualnych ustalen. Dlatego rekomendacja MVP: <strong>tryb link</strong>{" "}
++        do oficjalnego widoku LNP. Opcja iframe jest tylko warunkowa.
++      </p>
++
++      <h2>Co sprawdzono</h2>
++      <ul>
++        <li>
++          Oficjalny serwis rozgrywek LNP (publiczny widok ligi przekazany w wymaganiach).
++        </li>
++        <li>Regulamin biblioteki serwisu laczynaspilka.pl.</li>
++        <li>Wyszukiwania dokumentacji API na domenach laczynaspilka.pl i pzpn.pl.</li>
++      </ul>
++
++      <h2>Implikacje techniczne</h2>
++      <ul>
++        <li>Brak pewnej sciezki auth/limitow/SLA dla publicznego API.</li>
++        <li>
++          iframe moze dzialac lub byc blokowany przez polityki bezpieczenstwa (zalezne od
++          LNP/przegladarki).
++        </li>
++        <li>
++          Najbezpieczniej utrzymaniowo: link do oficjalnego widoku + opcjonalny manualny
++          fallback JSON w repo.
++        </li>
++      </ul>
++
++      <h2>Zrodla</h2>
++      <ul>
++        <li>
++          <a
++            href="https://www.laczynaspilka.pl/rozgrywki?season=e9d66181-d03e-4bb3-b889-4da848f4831d&leagueGroup=e978c8e5-d903-4a89-b6b5-8d5da6c567ee&leagueId=337bb869-0b42-484f-8eca-0c8842a13ec9&subLeague=63d04023-727a-4c0c-a8c6-4154fe1104b7&enumType=ZpnAndLeagueAndPlay&group=e461a216-41f1-4342-a9ae-1978a713c38e&voivodeship=b1c48bc7-ffe2-4afd-a855-c64f82e3354f&isAdvanceMode=false&genderType=Male"
++            target="_blank"
++            rel="noreferrer"
++          >
++            LNP - rozgrywki
++          </a>
++        </li>
++        <li>
++          <a
++            href="https://www.laczynaspilka.pl/biblioteka/regulamin-serwisu"
++            target="_blank"
++            rel="noreferrer"
++          >
++            LNP - regulamin serwisu
++          </a>
++        </li>
++        <li>
++          <a
++            href="https://www.facebook.com/help/125379114252045"
++            target="_blank"
++            rel="noreferrer"
++          >
++            Facebook Help - osadzanie tresci publicznej
++          </a>
++        </li>
++      </ul>
++    </section>
++  );
++}
+diff --git a/aserto-trzesn-site/components/site-header.tsx b/aserto-trzesn-site/components/site-header.tsx
+new file mode 100644
+index 0000000..7ac06c8
+--- /dev/null
++++ b/aserto-trzesn-site/components/site-header.tsx
+@@ -0,0 +1,33 @@
++import Link from "next/link";
++
++const navItems = [
++  { href: "/", label: "Aktualnosci" },
++  { href: "/kadra", label: "Kadra" },
++  { href: "/historia", label: "Historia" },
++  { href: "/liga", label: "Liga" },
++  { href: "/research", label: "Research danych" }
++];
++
++export function SiteHeader() {
++  return (
++    <header className="site-header">
++      <div className="container header-inner">
++        <Link href="/" className="logo-link">
++          <span className="logo-badge" aria-hidden="true">
++            AT
++          </span>
++          <span>Aserto Trzesn</span>
++        </Link>
++        <nav aria-label="Nawigacja glowna">
++          <ul className="nav-list">
++            {navItems.map((item) => (
++              <li key={item.href}>
++                <Link href={item.href}>{item.label}</Link>
++              </li>
++            ))}
++          </ul>
++        </nav>
++      </div>
++    </header>
++  );
++}
+diff --git a/aserto-trzesn-site/components/news-section.tsx b/aserto-trzesn-site/components/news-section.tsx
+new file mode 100644
+index 0000000..b57de49
+--- /dev/null
++++ b/aserto-trzesn-site/components/news-section.tsx
+@@ -0,0 +1,62 @@
++import fallbackNews from "@/data/news.json";
++
++const pageUrl = "https://www.facebook.com/AsertoTrzesn";
++const pluginUrl = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(pageUrl)}&tabs=timeline&width=500&height=680&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false`;
++
++function formatDate(date: string) {
++  return new Intl.DateTimeFormat("pl-PL", {
++    day: "2-digit",
++    month: "2-digit",
++    year: "numeric"
++  }).format(new Date(date));
++}
++
++export function NewsSection() {
++  const selectedMode = process.env.NEXT_PUBLIC_NEWS_MODE ?? "facebook";
++  const useFacebook = selectedMode !== "fallback";
++
++  return (
++    <section className="panel" aria-labelledby="news-title">
++      <h2 id="news-title">Aktualnosci</h2>
++      <p className="muted">
++        Preferowany wariant: Facebook Page Plugin (iframe). Fallback: wpisy z pliku
++        JSON w repo + link do fanpage.
++      </p>
++
++      {useFacebook ? (
++        <div className="embed-wrap">
++          <iframe
++            title="Facebook - Aserto Trzesn aktualnosci"
++            src={pluginUrl}
++            width="500"
++            height="680"
++            style={{ border: "none", overflow: "hidden", maxWidth: "100%" }}
++            loading="lazy"
++            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
++            allowFullScreen
++          />
++          <p className="muted small">
++            Ryzyko: widget zalezy od polityki Facebook i zgody na cookies. W razie
++            problemow przelacz `NEXT_PUBLIC_NEWS_MODE=fallback`.
++          </p>
++        </div>
++      ) : null}
++
++      <div className="news-fallback">
++        <h3>Fallback z repo</h3>
++        <ul className="news-list">
++          {fallbackNews.map((newsItem) => (
++            <li key={newsItem.id} className="news-item">
++              <p className="news-date">{formatDate(newsItem.date)}</p>
++              <h4>{newsItem.title}</h4>
++              <p>{newsItem.summary}</p>
++              <a href={newsItem.sourceUrl} target="_blank" rel="noreferrer">
++                Zobacz na fanpage
++              </a>
++            </li>
++          ))}
++        </ul>
++      </div>
++    </section>
++  );
++}
+diff --git a/aserto-trzesn-site/components/league-section.tsx b/aserto-trzesn-site/components/league-section.tsx
+new file mode 100644
+index 0000000..9285a23
+--- /dev/null
++++ b/aserto-trzesn-site/components/league-section.tsx
+@@ -0,0 +1,98 @@
++import manualData from "@/data/league-manual.json";
++
++const leagueUrl =
++  "https://www.laczynaspilka.pl/rozgrywki?season=e9d66181-d03e-4bb3-b889-4da848f4831d&leagueGroup=e978c8e5-d903-4a89-b6b5-8d5da6c567ee&leagueId=337bb869-0b42-484f-8eca-0c8842a13ec9&subLeague=63d04023-727a-4c0c-a8c6-4154fe1104b7&enumType=ZpnAndLeagueAndPlay&group=e461a216-41f1-4342-a9ae-1978a713c38e&voivodeship=b1c48bc7-ffe2-4afd-a855-c64f82e3354f&isAdvanceMode=false&genderType=Male";
++
++const iframeUrl = leagueUrl;
++
++function formatDate(date: string) {
++  return new Intl.DateTimeFormat("pl-PL", {
++    day: "2-digit",
++    month: "2-digit",
++    year: "numeric"
++  }).format(new Date(date));
++}
++
++export function LeagueSection() {
++  const mode = process.env.NEXT_PUBLIC_LEAGUE_MODE ?? "link";
++
++  return (
++    <section className="panel" aria-labelledby="league-title">
++      <h2 id="league-title">Terminarz / Tabela / Wyniki</h2>
++      <p className="muted">
++        Dostepne warianty: `iframe` (A), `link` (B), `manual` (C). Aktualny tryb:
++        <strong> {mode}</strong>.
++      </p>
++
++      {mode === "iframe" ? (
++        <div className="embed-wrap">
++          <iframe
++            title="Rozgrywki LNP"
++            src={iframeUrl}
++            width="100%"
++            height="760"
++            style={{ border: "1px solid #d9e0f0", borderRadius: "12px" }}
++            loading="lazy"
++          />
++          <p className="muted small">
++            Ryzyko: strona LNP moze blokowac osadzanie przez polityke przegladarki lub
++            naglowki bezpieczenstwa.
++          </p>
++        </div>
++      ) : null}
++
++      {mode === "link" ? (
++        <div className="cta-box">
++          <p>
++            Najstabilniejsza opcja bez API i bez scrapingu: przejscie do oficjalnej strony
++            rozgrywek.
++          </p>
++          <a className="button-link" href={leagueUrl} target="_blank" rel="noreferrer">
++            Zobacz na LNP
++          </a>
++        </div>
++      ) : null}
++
++      {mode === "manual" ? (
++        <div className="manual-grid">
++          <article className="panel soft">
++            <h3>Najblizsze mecze</h3>
++            <ul className="news-list">
++              {manualData.matches.map((match) => (
++                <li key={`${match.date}-${match.opponent}`} className="news-item">
++                  <p className="news-date">{formatDate(match.date)}</p>
++                  <h4>{match.opponent}</h4>
++                  <p>
++                    {match.homeAway} - {match.status}
++                  </p>
++                </li>
++              ))}
++            </ul>
++          </article>
++          <article className="panel soft">
++            <h3>Tabela (fragment)</h3>
++            <table className="data-table">
++              <caption>Ostatnia aktualizacja: {formatDate(manualData.updatedAt)}</caption>
++              <thead>
++                <tr>
++                  <th scope="col">Druzyna</th>
++                  <th scope="col">M</th>
++                  <th scope="col">Pkt</th>
++                </tr>
++              </thead>
++              <tbody>
++                {manualData.tableSnippet.map((row) => (
++                  <tr key={row.team}>
++                    <td>{row.team}</td>
++                    <td>{row.games}</td>
++                    <td>{row.points}</td>
++                  </tr>
++                ))}
++              </tbody>
++            </table>
++          </article>
++        </div>
++      ) : null}
++    </section>
++  );
++}
+diff --git a/aserto-trzesn-site/lib/content.ts b/aserto-trzesn-site/lib/content.ts
+new file mode 100644
+index 0000000..2915828
+--- /dev/null
++++ b/aserto-trzesn-site/lib/content.ts
+@@ -0,0 +1,9 @@
++import { readFile } from "node:fs/promises";
++import path from "node:path";
++
++const projectRoot = process.cwd();
++
++export async function readHistoryMarkdown(): Promise<string> {
++  const historyPath = path.join(projectRoot, "content", "history.md");
++  return readFile(historyPath, "utf8");
++}
+diff --git a/aserto-trzesn-site/lib/markdown.tsx b/aserto-trzesn-site/lib/markdown.tsx
+new file mode 100644
+index 0000000..ac7ed4a
+--- /dev/null
++++ b/aserto-trzesn-site/lib/markdown.tsx
+@@ -0,0 +1,68 @@
++import { Fragment, type ReactElement } from "react";
++
++export function renderSimpleMarkdown(markdown: string): ReactElement[] {
++  const lines = markdown.split(/\r?\n/);
++  const elements: ReactElement[] = [];
++  let listItems: string[] = [];
++  let index = 0;
++
++  const flushList = () => {
++    if (listItems.length === 0) return;
++    elements.push(
++      <ul key={`list-${index}`} className="markdown-list">
++        {listItems.map((item, itemIndex) => (
++          <li key={`list-item-${index}-${itemIndex}`}>{item}</li>
++        ))}
++      </ul>
++    );
++    listItems = [];
++    index += 1;
++  };
++
++  for (const rawLine of lines) {
++    const line = rawLine.trim();
++
++    if (!line) {
++      flushList();
++      continue;
++    }
++
++    if (line.startsWith("- ")) {
++      listItems.push(line.replace(/^- /, ""));
++      continue;
++    }
++
++    flushList();
++
++    if (line.startsWith("## ")) {
++      elements.push(
++        <h2 key={`h2-${index}`} className="markdown-h2">
++          {line.replace(/^## /, "")}
++        </h2>
++      );
++      index += 1;
++      continue;
++    }
++
++    if (line.startsWith("# ")) {
++      elements.push(
++        <h1 key={`h1-${index}`} className="markdown-h1">
++          {line.replace(/^# /, "")}
++        </h1>
++      );
++      index += 1;
++      continue;
++    }
++
++    elements.push(
++      <Fragment key={`p-${index}`}>
++        <p className="markdown-p">{line}</p>
++      </Fragment>
++    );
++    index += 1;
++  }
++
++  flushList();
++
++  return elements;
++}
+diff --git a/aserto-trzesn-site/content/history.md b/aserto-trzesn-site/content/history.md
+new file mode 100644
+index 0000000..ed83f2b
+--- /dev/null
++++ b/aserto-trzesn-site/content/history.md
+@@ -0,0 +1,17 @@
++# Historia Aserto Trzesn
++
++Aserto Trzesn to lokalna druzyna pilkarska budowana wokol pasji do sportu i pracy z mlodzieza.
++
++## Poczatki
++
++Pierwsze mecze towarzyskie byly rozgrywane na boisku gminnym, a trzon zespolu tworzyli zawodnicy z Trzesni i okolic.
++
++## Rozwoj klubu
++
++- regularne treningi dwa razy w tygodniu
++- udzial w lokalnych rozgrywkach ligowych
++- wspolpraca z lokalna spolecznoscia i sponsorami
++
++## Dzisiaj
++
++Klub stawia na stabilny rozwoj, dobra atmosfere i systematyczne podnoszenie poziomu sportowego.
+diff --git a/aserto-trzesn-site/data/squad.json b/aserto-trzesn-site/data/squad.json
+new file mode 100644
+index 0000000..aa2253e
+--- /dev/null
++++ b/aserto-trzesn-site/data/squad.json
+@@ -0,0 +1,44 @@
++[
++  {
++    "name": "Mikolaj Kowalski",
++    "position": "Bramkarz",
++    "number": 1,
++    "birthYear": 2000
++  },
++  {
++    "name": "Kacper Nowak",
++    "position": "Obronca",
++    "number": 4,
++    "birthYear": 1998
++  },
++  {
++    "name": "Patryk Wrobel",
++    "position": "Obronca",
++    "number": 5,
++    "birthYear": 2001
++  },
++  {
++    "name": "Dominik Mazur",
++    "position": "Pomocnik",
++    "number": 8,
++    "birthYear": 1999
++  },
++  {
++    "name": "Jakub Stepien",
++    "position": "Pomocnik",
++    "number": 10,
++    "birthYear": 2002
++  },
++  {
++    "name": "Bartosz Lis",
++    "position": "Napastnik",
++    "number": 9,
++    "birthYear": 1997
++  },
++  {
++    "name": "Kamil Zielinski",
++    "position": "Napastnik",
++    "number": 11,
++    "birthYear": 2003
++  }
++]
+diff --git a/aserto-trzesn-site/data/news.json b/aserto-trzesn-site/data/news.json
+new file mode 100644
+index 0000000..c504cc9
+--- /dev/null
++++ b/aserto-trzesn-site/data/news.json
+@@ -0,0 +1,23 @@
++[
++  {
++    "id": "2026-02-10-1",
++    "date": "2026-02-10",
++    "title": "Sparing przed runda wiosenna",
++    "summary": "W sobote rozegralismy mecz kontrolny i testowalismy nowe ustawienie.",
++    "sourceUrl": "https://www.facebook.com/AsertoTrzesn"
++  },
++  {
++    "id": "2026-02-03-1",
++    "date": "2026-02-03",
++    "title": "Treningi przygotowawcze",
++    "summary": "Druzyna trenuje we wtorki i czwartki o 19:00 na boisku w Trzesni.",
++    "sourceUrl": "https://www.facebook.com/AsertoTrzesn"
++  },
++  {
++    "id": "2026-01-27-1",
++    "date": "2026-01-27",
++    "title": "Nabor do druzyny seniorow",
++    "summary": "Zapraszamy zawodnikow do dolaczenia. Kontakt przez fanpage.",
++    "sourceUrl": "https://www.facebook.com/AsertoTrzesn"
++  }
++]
+diff --git a/aserto-trzesn-site/data/league-manual.json b/aserto-trzesn-site/data/league-manual.json
+new file mode 100644
+index 0000000..b3baf21
+--- /dev/null
++++ b/aserto-trzesn-site/data/league-manual.json
+@@ -0,0 +1,28 @@
++{
++  "updatedAt": "2026-02-17",
++  "matches": [
++    {
++      "date": "2026-03-08",
++      "opponent": "LKS Wisla Gromnik",
++      "homeAway": "Dom",
++      "status": "Planowany"
++    },
++    {
++      "date": "2026-03-15",
++      "opponent": "KS Sokol Nowa Deba",
++      "homeAway": "Wyjazd",
++      "status": "Planowany"
++    },
++    {
++      "date": "2026-03-22",
++      "opponent": "LZS Zlotniki",
++      "homeAway": "Dom",
++      "status": "Planowany"
++    }
++  ],
++  "tableSnippet": [
++    { "team": "Aserto Trzesn", "points": 24, "games": 12 },
++    { "team": "KS Sokol Nowa Deba", "points": 23, "games": 12 },
++    { "team": "LZS Zlotniki", "points": 21, "games": 12 }
++  ]
++}

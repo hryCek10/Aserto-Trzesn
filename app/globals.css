@@ -1,0 +1,409 @@
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-soft: #fff3f3;
+  --text: #2a1212;
+  --muted: #6f4242;
+  --line: #f0d6d6;
+  --brand: #be1e2d;
+  --brand-dark: #8f1420;
+  --focus: #f3b13f;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(120, 20, 20, 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-poppins), "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url("/background.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.6;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.2) 45%),
+    linear-gradient(rgba(255, 255, 255, 0.74), rgba(255, 250, 250, 0.84));
+  backdrop-filter: blur(2px);
+}
+
+a {
+  color: var(--brand);
+}
+
+a:focus-visible,
+button:focus-visible,
+iframe:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.container {
+  width: min(1080px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--brand-dark);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  z-index: 10;
+}
+
+.skip-link:focus {
+  left: 1rem;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.header-inner {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.logo-crest {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid rgba(190, 30, 45, 0.25);
+  background: #fff;
+  object-fit: cover;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-list a {
+  text-decoration: none;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+}
+
+.nav-list a:hover {
+  background: var(--surface-soft);
+}
+
+.social-list {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+}
+
+.social-link {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.social-link svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: currentColor;
+}
+
+.social-link:hover {
+  background: var(--surface-soft);
+}
+
+.main-content {
+  padding: 2.2rem 0 2.8rem;
+}
+
+.hero {
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.hero-banner {
+  min-height: clamp(170px, 30vw, 300px);
+  border-radius: calc(var(--radius) + 4px);
+  border: 1px solid rgba(190, 30, 45, 0.2);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: url("/banner.jpg");
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.home-main,
+.home-side {
+  height: 100%;
+}
+
+.home-main .panel,
+.home-side .panel {
+  margin-top: 0;
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 1.15rem;
+  margin-top: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.92rem;
+}
+
+.embed-wrap iframe {
+  background: #fff;
+}
+
+.panel-news {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-news .embed-wrap {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.embed-wrap-news iframe {
+  width: 500px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.news-actions {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: center;
+}
+
+.home-main .embed-wrap iframe {
+  max-width: 100%;
+}
+
+.embed-wrap-league iframe {
+  max-width: 100%;
+  min-height: 820px;
+}
+
+.button-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  text-decoration: none;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+}
+
+.button-link:hover {
+  background: var(--brand-dark);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table caption {
+  text-align: left;
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid var(--line);
+  padding: 0.55rem;
+  text-align: left;
+}
+
+.squad-table {
+  table-layout: fixed;
+}
+
+.squad-table .squad-col-year {
+  width: 7rem;
+}
+
+.squad-table th:last-child,
+.squad-table td:last-child {
+  width: 7rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.squad-groups {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+}
+
+.squad-group {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.squad-group h2 {
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.markdown-h1,
+.markdown-h2,
+.markdown-p,
+.markdown-list {
+  margin-top: 0;
+}
+
+.markdown-h2 {
+  margin-top: 1.3rem;
+}
+
+.markdown-list {
+  padding-left: 1.2rem;
+}
+
+.history-panel {
+  text-align: center;
+}
+
+.history-panel .markdown-list {
+  list-style-position: inside;
+  padding-left: 0;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  min-height: 64px;
+  align-items: center;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 920px) {
+  .header-inner {
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .squad-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .embed-wrap-league iframe {
+    min-height: 760px;
+  }
+}
